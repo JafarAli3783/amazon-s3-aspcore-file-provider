@@ -1210,6 +1210,7 @@ namespace Syncfusion.EJ2.FileManager.AmazonS3FileProvider
             folderPermission.Read = HasPermission(folderRule.Read);
             folderPermission.Upload = HasPermission(folderRule.Upload);
             folderPermission.Message = string.IsNullOrEmpty(folderRule.Message) ? string.Empty : folderRule.Message;
+            folderPermission.UploadContentFilter = folderRule.UploadContentFilter;
             return folderPermission;
         }
         protected virtual AccessPermission UpdateFileRules(AccessPermission filePermission, AccessRule fileRule)
