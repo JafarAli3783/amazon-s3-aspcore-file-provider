@@ -30,6 +30,7 @@ namespace EJ2AmazonS3ASPCoreFileProvider.Controllers
         [HttpPost("AmazonS3FileOperations")]
         public object AmazonS3FileOperations([FromBody] FileManagerDirectoryContent args)
         {
+            this.operation.SetRules(GetRules());
             if (args.Action == "delete" || args.Action == "rename")
             {
                 if ((args.TargetPath == null) && (args.Path == ""))
@@ -131,6 +132,20 @@ namespace EJ2AmazonS3ASPCoreFileProvider.Controllers
         public IActionResult AmazonS3GetImage(FileManagerDirectoryContent args)
         {
             return operation.GetImage(args.Path, args.Id, false, null, args.Data);
+        }
+
+        public AccessDetails GetRules()
+        {
+            AccessDetails accessDetails = new AccessDetails();
+            List<AccessRule> Rules = new List<AccessRule> {
+                // Deny writing for particular file
+                new AccessRule { Path = "Pictures/Employees/Adam.png", Role = "Document Manager", Read = Permission.Allow, Write = Permission.Deny, Copy = Permission.Deny, Download = Permission.Deny, IsFile = true },
+                // Deny based on the type
+                new AccessRule { Path = "Music/", Role = "Document Manager", Write = Permission.Deny, WriteContents = Permission.Deny, Upload = Permission.Allow, UploadContentFilter = UploadContentFilter.FoldersOnly, IsFile = false },
+            };
+            accessDetails.AccessRules = Rules;
+            accessDetails.Role = "Document Manager";
+            return accessDetails;
         }
     }
 

@@ -89,6 +89,7 @@ namespace Syncfusion.EJ2.FileManager.AmazonS3FileProvider
             }
             catch (Exception) { throw; }
             if (filesS3.Count != 0) files = files.Union(filesS3).ToList();
+            cwd.Permission = GetPathPermission(path, cwd.IsFile);
             readResponse.CWD = cwd;
             try
             {
