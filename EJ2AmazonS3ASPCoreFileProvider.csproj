@@ -10,7 +10,6 @@
 
   <ItemGroup>
 	<PackageReference Include="AWSSDK.S3" Version="3.7.101.52" />
-	<PackageReference Include="Swashbuckle.AspNetCore" Version="10.1.2" />
   </ItemGroup>
 
 </Project>
