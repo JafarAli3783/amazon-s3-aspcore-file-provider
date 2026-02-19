@@ -12,6 +12,7 @@ using Amazon.S3.Transfer;
 using Microsoft.AspNetCore.Mvc;
 using System.IO.Compression;
 using System.Text.Json;
+using System.Threading;
 
 namespace Syncfusion.EJ2.FileManager.AmazonS3FileProvider
 {
@@ -19,8 +20,6 @@ namespace Syncfusion.EJ2.FileManager.AmazonS3FileProvider
     {
         private static string bucketName;
         static IAmazonS3 client;
-        static ListObjectsResponse response;
-        static ListObjectsResponse childResponse;
         private string RootName;
         private string rootName = string.Empty;
         private string accessMessage = string.Empty;
@@ -30,6 +29,18 @@ namespace Syncfusion.EJ2.FileManager.AmazonS3FileProvider
         TransferUtility fileTransferUtility = new TransferUtility(client);
         private static List<PartETag> partETags;
         private static string uploadId;
+        private static readonly AsyncLocal<ListObjectsResponse> ResponseSlot = new AsyncLocal<ListObjectsResponse>();
+        private static readonly AsyncLocal<ListObjectsResponse> ChildResponseSlot = new AsyncLocal<ListObjectsResponse>();
+        private static ListObjectsResponse response
+        {
+            get => ResponseSlot.Value;
+            set => ResponseSlot.Value = value;
+        }
+        private static ListObjectsResponse childResponse
+        {
+            get => ChildResponseSlot.Value;
+            set => ChildResponseSlot.Value = value;
+        }
 
         // Register the amazon client details
         public void RegisterAmazonS3(string name, string awsAccessKeyId, string awsSecretAccessKey, string region)
@@ -1114,15 +1125,17 @@ namespace Syncfusion.EJ2.FileManager.AmazonS3FileProvider
             return childResponse.CommonPrefixes.Count > 0 ? true : false;
         }
 
-        private static async Task ListingObjectsAsync(string delimiter, string prefix, bool childCheck)
+        private static Task ListingObjectsAsync(string delimiter, string prefix, bool childCheck)
         {
             try
             {
                 ListObjectsRequest request = new ListObjectsRequest { BucketName = bucketName, Delimiter = delimiter, Prefix = prefix };
+                var result = client.ListObjectsAsync(request).GetAwaiter().GetResult();
                 if (childCheck)
-                    childResponse = await client.ListObjectsAsync(request);
+                    childResponse = result;
                 else
-                    response = await client.ListObjectsAsync(request);
+                    response = result;
+                return Task.CompletedTask;
             }
             catch (AmazonS3Exception) { throw; }
         }
