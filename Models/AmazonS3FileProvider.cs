@@ -128,7 +128,7 @@ namespace Syncfusion.EJ2.FileManager.AmazonS3FileProvider
                 if (path == "/") ListingObjectsAsync("/", RootName, false).Wait(); else ListingObjectsAsync("/", SanitizePath(path, null, true), false).Wait();
                 if (response.S3Objects.Count > 0)
                 {
-                    var prefix = SanitizePath(path, null, true);
+                    string prefix = SanitizePath(path, null, true);
                     filesS3 = response.S3Objects.Where(x => x.Key != prefix).Select(y => CreateDirectoryContentInstance(y.Key.ToString().Replace(prefix, "").Replace("/", ""), true, Path.GetExtension(y.Key.ToString()), y.Size, y.LastModified, y.LastModified, this.CheckChild(y.Key), GetFilterPath(y.Key, path))).ToList();
                 }
             }
